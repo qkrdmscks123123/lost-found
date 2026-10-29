@@ -1,0 +1,16 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /items/{allPaths=**} {
+      // 사진은 누구나 볼 수 있음
+      allow read: if true;
+      // 업로드는 로그인(익명 포함)한 사용자만, 5MB 미만의 이미지 파일만 가능
+      allow create: if request.auth != null
+                    && request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+      // 수정/삭제는 불가
+      allow update, delete: if false;
+    }
+  }
+}
